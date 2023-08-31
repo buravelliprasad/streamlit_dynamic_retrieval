@@ -51,7 +51,7 @@ business_details_text = [
 ]
 retriever_3 = FAISS.from_texts(business_details_text, OpenAIEmbeddings()).as_retriever()
 
-file_1 = r'C:\Users\Prasad\Desktop\Streamlit_ai\dealer_1_inventry.csv'
+file_1 = r'dealer_1_inventry.csv'
 
 loader = CSVLoader(file_path=file_1)
 docs_1 = loader.load()
@@ -61,7 +61,7 @@ vectorstore_1 = FAISS.from_documents(docs_1, embeddings)
 
 retriever_1 = vectorstore_1.as_retriever(search_type="similarity", search_kwargs={"k": 8})#check without similarity search and k=8
 
-file_2 = r'C:\Users\Prasad\Desktop\Streamlit_ai\appointment.csv'
+file_2 = r'appointment.csv'
 loader = CSVLoader(file_path=file_2)
 docs_2 = loader.load()
 
