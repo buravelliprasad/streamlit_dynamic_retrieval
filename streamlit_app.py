@@ -23,7 +23,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from pytz import timezone
-# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 st.image("socialai.jpg")
 import datetime
 datetime.datetime.now()
@@ -37,8 +37,8 @@ day_of_week = datetime.date.today().weekday()
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 current_day = days[day_of_week]
 
-print("Current date:", current_date)
-print("Current day:", current_day)
+# print("Current date:", current_date)
+# print("Current day:", current_day)
 todays_date = current_date
 day_of_the_week = current_day
 
