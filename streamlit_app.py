@@ -1,4 +1,4 @@
-
+from airtable import Airtable
 from langchain.chains.router import MultiRetrievalQAChain
 from langchain.llms import OpenAI
 from langchain.chains import RetrievalQA
