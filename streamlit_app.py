@@ -99,6 +99,13 @@ tool3 = create_retriever_tool(
 # Append all tools to the tools list
 tools = [tool1, tool2, tool3]
 
+#airtable
+​
+airtable_api_key = st.secrets["AIRTABLE"]["AIRTABLE_API_KEY"]
+os.environ["AIRTABLE_API_KEY"] = airtable_api_key
+AIRTABLE_BASE_ID = "apphcpoXpCsorEcNx"  
+AIRTABLE_TABLE_NAME = "Question_Answer_Data" 
+
 # Streamlit UI setup
 st.info(" We're developing cutting-edge conversational AI solutions tailored for automotive retail, aiming to provide advanced products and support. As part of our progress, we're establishing a environment to check offerings and also check Our website [engane.ai](https://funnelai.com/). This test application answers about Inventry, Business details, Financing and Discounts and Offers related questions. [here](https://github.com/buravelliprasad/streamlit/blob/main/dealer_1_inventry.csv) is a inventry dataset explore and play with the data. Appointment dataset [here](https://github.com/buravelliprasad/streamlit_dynamic_retrieval/blob/main/appointment.csv)")
 # Initialize session state
@@ -215,6 +222,20 @@ else:
 response_container = st.container()
 container = st.container()
 
+airtable = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME, api_key=airtable_api_key)
+​
+def save_chat_to_airtable(user_name, user_input, output):
+    try:
+        airtable.insert(
+            {
+                "username": user_name,
+                "question": user_input,
+                "answer": output,
+            }
+        )
+    except Exception as e:
+        st.error(f"An error occurred while saving data to Airtable: {e}")
+
 # agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True, return_intermediate_steps=True)
 chat_history=[]
 def conversational_chat(user_input):
@@ -227,32 +248,22 @@ with container:
         user_name = st.text_input("Your name:")
         if user_name:
             st.session_state.user_name = user_name
+            
     with st.form(key='my_form', clear_on_submit=True):
         user_input = st.text_input("Query:", placeholder="Type your question here (:", key='input')
         submit_button = st.form_submit_button(label='Send')
+    
     if submit_button and user_input:
-        output = conversational_chat(user_input)
-       
-        # Get the current UTC timestamp
-        # utc_now = datetime.now(timezone('UTC'))
-        
-        # Display conversation history with proper differentiation
-        with response_container:
-            for i, (query, answer) in enumerate(st.session_state.chat_history):
-                message(query, is_user=True, key=f"{i}_user", avatar_style="big-smile")
-                message(answer, key=f"{i}_answer", avatar_style="thumbs")
-        
-        # Save conversation to Google Sheets along with user name and UTC timestamp
-        # if st.session_state.user_name:
-        #     try:
-        #         save_chat_to_google_sheets(st.session_state.user_name, user_input, output, utc_now.strftime('%Y-%m-%d-%H-%M-%S'))
-        #     except Exception as e:
-        #         st.error(f"An error occurred: {e}")
-        #     # save_chat_to_google_sheets(st.session_state.user_name, user_input, output, utc_now.strftime('%Y-%m-%d-%H-%M-%S'))
-
-
-
-
-
-
-
+       output = conversational_chat(user_input)
+       utc_now = datetime.now(timezone('UTC'))
+   
+       with response_container:
+           for i, (query, answer) in enumerate(st.session_state.chat_history):
+               message(query, is_user=True, key=f"{i}_user", avatar_style="big-smile")
+               message(answer, key=f"{i}_answer", avatar_style="thumbs")
+   
+           if st.session_state.user_name:
+               try:
+                   save_chat_to_airtable(st.session_state.user_name, user_input, output)
+               except Exception as e:
+                   st.error(f"An error occurred: {e}")
