@@ -235,17 +235,17 @@ def save_chat_to_airtable(user_name, user_input, output):
         )
     except Exception as e:
         st.error(f"An error occurred while saving data to Airtable: {e}")
-def save_chat_to_airtable(user_name, user_input, output):
-    try:
-        airtable.insert(
-            {
-                "username": user_name,
-                "question": user_input,
-                "answer": output,
-            }
-        )
-    except Exception as e:
-        st.error(f"An error occurred while saving data to Airtable: {e}")
+# def save_chat_to_airtable(user_name, user_input, output):
+#     try:
+#         airtable.insert(
+#             {
+#                 "username": user_name,
+#                 "question": user_input,
+#                 "answer": output,
+#             }
+#         )
+#     except Exception as e:
+#         st.error(f"An error occurred while saving data to Airtable: {e}")
 
 # agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True, return_intermediate_steps=True)
 chat_history=[]
