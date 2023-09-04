@@ -23,6 +23,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from pytz import timezone
+from datetime import datetime
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 st.image("socialai.jpg")
 import datetime
@@ -266,7 +267,7 @@ with container:
     
     if submit_button and user_input:
        output = conversational_chat(user_input)
-       # utc_now = datetime.now(timezone('UTC'))
+       utc_now = datetime.now(timezone('UTC'))
    
        with response_container:
            for i, (query, answer) in enumerate(st.session_state.chat_history):
