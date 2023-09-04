@@ -222,7 +222,6 @@ response_container = st.container()
 container = st.container()
 
 airtable = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME, api_key=airtable_api_key)
-​
 def save_chat_to_airtable(user_name, user_input, output):
     try:
         airtable.insert(
