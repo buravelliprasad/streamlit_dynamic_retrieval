@@ -99,8 +99,7 @@ tool3 = create_retriever_tool(
 # Append all tools to the tools list
 tools = [tool1, tool2, tool3]
 
-#airtable
-​
+# airtable
 airtable_api_key = st.secrets["AIRTABLE"]["AIRTABLE_API_KEY"]
 os.environ["AIRTABLE_API_KEY"] = airtable_api_key
 AIRTABLE_BASE_ID = "apphcpoXpCsorEcNx"  
