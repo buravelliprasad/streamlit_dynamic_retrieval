@@ -1,3 +1,4 @@
+import os
 from airtable import Airtable
 from langchain.chains.router import MultiRetrievalQAChain
 from langchain.llms import OpenAI
@@ -14,19 +15,26 @@ from langchain.vectorstores import FAISS
 from langchain.llms import OpenAI
 from langchain import PromptTemplate
 from langchain.memory import ConversationBufferMemory
-import tempfile
-import pandas as pd
-import os
-import csv
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from pytz import timezone
 from datetime import datetime
+import datetime
+from langchain.agents.agent_toolkits import create_retriever_tool
+from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
+from langchain.chat_models import ChatOpenAI
+import langchain
+from langchain.agents.openai_functions_agent.agent_token_buffer_memory import AgentTokenBufferMemory
+from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
+from langchain.schema.messages import SystemMessage
+from langchain.prompts import MessagesPlaceholder
+from langchain.agents import AgentExecutor
+
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 st.image("socialai.jpg")
-import datetime
+
 datetime.datetime.now()
 # Get the current date in "%m/%d/%y" format
 current_date = datetime.date.today().strftime("%m/%d/%y")
@@ -56,22 +64,19 @@ file_1 = r'dealer_1_inventry.csv'
 
 loader = CSVLoader(file_path=file_1)
 docs_1 = loader.load()
-
 embeddings = OpenAIEmbeddings()
 vectorstore_1 = FAISS.from_documents(docs_1, embeddings)
-
 retriever_1 = vectorstore_1.as_retriever(search_type="similarity", search_kwargs={"k": 8})#check without similarity search and k=8
 
 file_2 = r'appointment.csv'
 loader = CSVLoader(file_path=file_2)
 docs_2 = loader.load()
-
 embeddings = OpenAIEmbeddings()
 vectorstore_2 = FAISS.from_documents(docs_2, embeddings)
 
 retriever_2 = vectorstore_2.as_retriever(search_type="similarity", search_kwargs={"k": 8})#check without similarity search and k=8
 
-from langchain.agents.agent_toolkits import create_retriever_tool
+
 # Create the first tool
 tool1 = create_retriever_tool(
     retriever_1, 
@@ -118,49 +123,11 @@ if 'past' not in st.session_state:
 # Initialize user name in session state
 if 'user_name' not in st.session_state:
     st.session_state.user_name = None
-# def save_chat_to_google_sheets(user_name, user_input, output, timestamp):
-#     try:
-#         # Connect to Google Sheets using service account credentials
-#         credentials = service_account.Credentials.from_service_account_info(
-#             st.secrets["gcp_service_account"],
-#             scopes=["https://www.googleapis.com/auth/spreadsheets"],
-#         )
-#         gc = gspread.authorize(credentials)
-        
-#         # Get the Google Sheet by URL
-#         sheet_url = st.secrets["public_gsheets_url"]
-#         sheet = gc.open_by_url(sheet_url)
-        
-#         # Select the desired worksheet
-#         worksheet = sheet.get_worksheet(0)  # Replace 0 with the index of your desired worksheet
-    
-#         data = [timestamp, user_name, user_input, output]
-#         worksheet.append_row(data)
-#         # st.success("Data saved to Google Sheets!")
-#     except Exception as e:
-#         st.error(f"Error saving data to Google Sheets: {str(e)}")
 
-# In[21]:
-
-
-from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
-
-from langchain.chat_models import ChatOpenAI
 llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature = 0)
-
-import langchain
 langchain.debug=True
-
 memory_key = "history"
-
-from langchain.agents.openai_functions_agent.agent_token_buffer_memory import AgentTokenBufferMemory
-
 memory = AgentTokenBufferMemory(memory_key=memory_key, llm=llm)
-
-from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
-from langchain.schema.messages import SystemMessage
-from langchain.prompts import MessagesPlaceholder
-
 template=(
 """You're the Business Development Manager at our car dealership./
 When responding to inquiries, please adhere to the following guidelines:
@@ -206,8 +173,6 @@ prompt = OpenAIFunctionsAgent.create_prompt(
         extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)]
     )
 
-from langchain.agents import AgentExecutor
-
 agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 print("this code block running every time")
 
@@ -218,11 +183,11 @@ if 'agent_executor' not in st.session_state:
 else:
 	agent_executor = st.session_state.agent_executor
 
-
 response_container = st.container()
 container = st.container()
 
 airtable = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME, api_key=airtable_api_key)
+
 def save_chat_to_airtable(user_name, user_input, output):
     try:
         timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -236,19 +201,7 @@ def save_chat_to_airtable(user_name, user_input, output):
         )
     except Exception as e:
         st.error(f"An error occurred while saving data to Airtable: {e}")
-# def save_chat_to_airtable(user_name, user_input, output):
-#     try:
-#         airtable.insert(
-#             {
-#                 "username": user_name,
-#                 "question": user_input,
-#                 "answer": output,
-#             }
-#         )
-#     except Exception as e:
-#         st.error(f"An error occurred while saving data to Airtable: {e}")
 
-# agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True, return_intermediate_steps=True)
 chat_history=[]
 def conversational_chat(user_input):
     result = agent_executor({"input":user_input})
@@ -267,7 +220,7 @@ with container:
     
     if submit_button and user_input:
        output = conversational_chat(user_input)
-       # utc_now = datetime.now(timezone('UTC'))
+       utc_now = datetime.now(timezone('UTC'))
    
        with response_container:
            for i, (query, answer) in enumerate(st.session_state.chat_history):
