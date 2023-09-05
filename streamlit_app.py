@@ -20,7 +20,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from pytz import timezone
-from datetime import datetime
+import datetime
 from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain.chat_models import ChatOpenAI
@@ -37,11 +37,11 @@ st.image("socialai.jpg")
 # datetime.datetime.now()
 datetime.now()
 # Get the current date in "%m/%d/%y" format
-# current_date = datetime.date.today().strftime("%m/%d/%y")
-current_date = datetime.today().strftime("%m/%d/%y")
+current_date = datetime.date.today().strftime("%m/%d/%y")
+# current_date = datetime.today().strftime("%m/%d/%y")
 # Get the day of the week (0: Monday, 1: Tuesday, ..., 6: Sunday)
-# day_of_week = datetime.date.today().weekday()
-day_of_week = datetime.today().weekday()
+day_of_week = datetime.date.today().weekday()
+# day_of_week = datetime.today().weekday()
 
 # Convert the day of the week to a string representation
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -190,7 +190,7 @@ airtable = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME, api_key=airtable_api_
 
 def save_chat_to_airtable(user_name, user_input, output):
     try:
-        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         airtable.insert(
             {
                 "username": user_name,
