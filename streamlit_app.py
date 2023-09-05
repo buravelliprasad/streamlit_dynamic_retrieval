@@ -220,7 +220,7 @@ with container:
     
     if submit_button and user_input:
        output = conversational_chat(user_input)
-       utc_now = datetime.now(timezone('UTC'))
+       
    
        with response_container:
            for i, (query, answer) in enumerate(st.session_state.chat_history):
