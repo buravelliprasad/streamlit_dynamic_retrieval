@@ -186,6 +186,9 @@ else:
 response_container = st.container()
 container = st.container()
 
+response_container = st.container()
+container = st.container()
+
 airtable = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME, api_key=airtable_api_key)
 
 def save_chat_to_airtable(user_name, user_input, output):
@@ -203,11 +206,12 @@ def save_chat_to_airtable(user_name, user_input, output):
         st.error(f"An error occurred while saving data to Airtable: {e}")
 
 chat_history=[]
+
 def conversational_chat(user_input):
-    result = agent_executor({"input":user_input})
+    result = agent_executor({"input": user_input})
     st.session_state.chat_history.append((user_input, result["output"]))
     return result["output"]
-   
+
 with container:
     if st.session_state.user_name is None:
         user_name = st.text_input("Your name:")
@@ -220,7 +224,7 @@ with container:
     
     if submit_button and user_input:
        output = conversational_chat(user_input)
-       
+       utc_now = datetime.utcnow()
    
        with response_container:
            for i, (query, answer) in enumerate(st.session_state.chat_history):
